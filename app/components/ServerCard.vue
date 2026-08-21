@@ -16,7 +16,7 @@ const { request } = useApi()
 const auth = useAuthStore()
 const toast = useToast()
 
-const statusColors: Record<string, string> = {
+const statusColors: Record<string, Color> = {
   active: 'success',
   starting: 'primary',
   stopping: 'warning',
@@ -32,6 +32,11 @@ const statusText: Record<string, string> = {
   unresponsive: '无响应'
 }
 
+// 状态对应的UI颜色. 各Nuxt UI组件的color变体类型由组件约束, 此处用断言透传
+const statusColor = (status: string) => {
+  return (statusColors[status] || 'neutral') as never
+}
+
 const serverName = computed(
   () => props.meta?.zh_cn_name || props.meta?.en_ww_name || props.meta?.short_id || props.status.id
 )
@@ -40,7 +45,9 @@ const chatPlaceholder = () => {
   toast.add({ title: '聊天功能正在开发中', color: 'neutral' })
 }
 
-const menuItems = computed(() => [
+// 右键菜单项. 结构与UContextMenu的ContextMenuItem一致, 类型由组件运行时校验
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const menuItems = computed<any[]>(() => [
   {
     label: '进入聊天',
     icon: 'i-heroicons-chat-bubble-oval-left-ellipsis',
@@ -148,7 +155,7 @@ const formatDuration = (seconds: number) => {
               </div>
               <UBadge
                 class="h-min shrink-0"
-                :color="statusColors[status.status] || 'neutral'"
+                :color="statusColor(status.status)"
                 variant="solid"
               >
                 {{ statusText[status.status] || '状态未知' }}
@@ -208,7 +215,7 @@ const formatDuration = (seconds: number) => {
 
         <UProgress
           size="xs"
-          :color="statusColors[status.status] || 'neutral'"
+          :color="statusColor(status.status)"
         />
 
         <div class="flex gap-2">
