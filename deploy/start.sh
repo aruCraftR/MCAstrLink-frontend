@@ -19,4 +19,4 @@ HOST="${HOST:-0.0.0.0}"
 export PORT HOST NITRO_HOST="$HOST" NITRO_PORT="$PORT"
 
 echo "启动 MCAstrLink 前端: http://${HOST}:${PORT}"
-exec node .output/server/index.mjs
+exec node server/index.mjs

@@ -26,4 +26,4 @@ $env:NITRO_HOST = $env:HOST
 $env:NITRO_PORT = $port
 
 Write-Host "Starting MCAstrLink frontend: http://$($env:HOST):$port"
-node (Join-Path $root '.output\server\index.mjs')
+node (Join-Path $root 'server\index.mjs')

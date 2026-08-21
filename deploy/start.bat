@@ -31,7 +31,7 @@ set "NITRO_HOST=!envHost!"
 set "NITRO_PORT=!port!"
 
 echo Starting MCAstrLink frontend: http://!HOST!:!port!
-node ".output\server\index.mjs"
+node "server\index.mjs"
 
 if errorlevel 1 (
   echo.
