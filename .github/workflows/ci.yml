@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            script: bash scripts/build-linux.sh
+            artifact: mcastrlink-frontend-linux-x64.zip
+          - os: windows-latest
+            script: powershell -File scripts/build-windows.ps1
+            artifact: mcastrlink-frontend-windows-x64.zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Build and package
+        run: ${{ matrix.script }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.event.head_commit.message, '[release]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create release draft and upload packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          SHA: ${{ github.sha }}
+        run: |
+          tag="release-${SHA:0:12}"
+          title="${COMMIT_MESSAGE#\[release\]}"
+          title="$(echo "$title" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+          gh release create "$tag" \
+            --draft \
+            --title "${title:-Release $tag}" \
+            --notes "由 CI 自动创建的发布草稿。${SHA:+$'\n\n'}提交: $SHA"
+          find artifacts -name '*.zip' -print0 | xargs -0 -I{} gh release upload "$tag" "{}" --clobber
+          echo "草稿已创建: $tag"
