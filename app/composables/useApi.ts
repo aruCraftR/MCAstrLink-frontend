@@ -115,6 +115,27 @@ export function useApi() {
           await navigateTo('/login')
         }
       }
+      if (res.status === 422) {
+        // 参数错误: 统一弹出提示, 便于定位请求参数问题
+        const detail = (data as { detail?: unknown } | null)?.detail
+        let firstMsg: string | undefined
+        if (Array.isArray(detail)) {
+          for (const item of detail) {
+            if (item && typeof item === 'object' && 'msg' in item && typeof item.msg === 'string') {
+              firstMsg = item.msg
+              break
+            }
+          }
+        }
+        if (import.meta.client) {
+          useToast().add({
+            title: '参数错误',
+            description: firstMsg,
+            color: 'error'
+          })
+        }
+        throw new ApiError(res.status, 'invalid_parameter', firstMsg ?? '参数错误')
+      }
       const detail = (data as { detail?: ErrorDetail | string } | null)?.detail
       if (typeof detail === 'string') {
         throw new ApiError(res.status, String(res.status), detail)

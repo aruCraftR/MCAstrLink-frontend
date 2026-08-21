@@ -32,7 +32,7 @@ const jump = () => {
   jumpInput.value = ''
 }
 
-watch(currentPage, (page) => emit('change', page), { immediate: true })
+watch(currentPage, (page) => emit('change', page))
 </script>
 
 <template>
@@ -61,8 +61,8 @@ watch(currentPage, (page) => emit('change', page), { immediate: true })
       class="flex flex-col items-end gap-3 pt-2 sm:flex-row sm:items-center sm:justify-end sm:gap-4"
     >
       <UPagination
-        v-model="currentPage"
-        :page-count="props.pageSize"
+        v-model:page="currentPage"
+        :items-per-page="props.pageSize"
         :total="totalCount"
         :disabled="props.loading"
         class="max-w-full"
