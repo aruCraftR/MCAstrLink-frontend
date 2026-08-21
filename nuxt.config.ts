@@ -11,6 +11,11 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // 明暗模式偏好存cookie而非localStorage: SSR可从cookie读取偏好, 避免水合不匹配
+  colorMode: {
+    storage: 'cookie'
+  },
+
   runtimeConfig: {
     public: {
       // 后端API地址:
@@ -32,6 +37,14 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  // 禁用Google字体提供者, 避免启动/构建时联网拉取字体元数据(网络受限环境)
+  fonts: {
+    providers: {
+      google: false,
+      googleicons: false
     }
   },
 
@@ -66,18 +79,5 @@ export default defineNuxtConfig({
     },
     // 本地集合找不到图标时也不回退到外部Iconify API
     fallbackToApi: false
-  },
-
-  // 明暗模式偏好存cookie而非localStorage: SSR可从cookie读取偏好, 避免水合不匹配
-  colorMode: {
-    storage: 'cookie'
-  },
-
-  // 禁用Google字体提供者, 避免启动/构建时联网拉取字体元数据(网络受限环境)
-  fonts: {
-    providers: {
-      google: false,
-      googleicons: false
-    }
   }
 })
